@@ -153,6 +153,7 @@ export default function Home() {
     }, 0) / currentCredits
   ).toFixed(2);
 
+  console.log(subjectOfCourseToAdd, courseIdOfCourseToAdd, gradeOfCourseToAdd);
   return (
     <>
       <CgpaInfo currentCredits={currentCredits} sgpa={sgpa} />
@@ -213,7 +214,7 @@ export default function Home() {
               <div>
                 <Select
                   disabled={!subjectOfCourseToAdd}
-                  value={courseIdOfCourseToAdd}
+                  value={courseIdOfCourseToAdd || ""}
                   onValueChange={handleCourseIdChange}
                 >
                   <SelectTrigger className="w-[180px]">

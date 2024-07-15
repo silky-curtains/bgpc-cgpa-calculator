@@ -1,6 +1,6 @@
 export const SUBJECTS = {
   BIO: "BIO",
-  BITS: "BIST",
+  BITS: "BITS",
   CHEM: "CHEM",
   CS: "CS",
   EEE: "EEE",

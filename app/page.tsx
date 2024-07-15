@@ -21,6 +21,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  allCourses,
+  CourseId,
+  subjectKeys,
+  Subjects,
+  SUBJECTS,
+} from "@/lib/CourseConfigurations";
+import { useState } from "react";
 
 const CgpaInfo = () => {
   return (
@@ -50,6 +58,24 @@ const CgpaInfo = () => {
 };
 
 export default function Home() {
+  const [subjectOfCourseToAdd, setSubjectOfCourseToAdd] = useState<
+    Subjects | undefined
+  >(undefined);
+
+  const [courseIdOfCourseToAdd, setCourseIdOfCourseToAdd] = useState<
+    CourseId | undefined
+  >(undefined);
+
+  const handleSubjectChange = (subject: Subjects) => {
+    setSubjectOfCourseToAdd(subject);
+    setCourseIdOfCourseToAdd(undefined);
+  };
+
+  const handleCourseIdChange = (courseId: CourseId) => {
+    setCourseIdOfCourseToAdd(courseId);
+  };
+
+  console.log(subjectOfCourseToAdd, courseIdOfCourseToAdd);
   return (
     <>
       <CgpaInfo />
@@ -65,34 +91,48 @@ export default function Home() {
             <DrawerTitle>Select Course</DrawerTitle>
           </DrawerHeader>
           <div className="flex justify-between items-center p-4">
-            <Select>
+            <Select
+              value={subjectOfCourseToAdd}
+              onValueChange={handleSubjectChange}
+            >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select Subject" />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectLabel>Fruits</SelectLabel>
-                  <SelectItem value="apple">Apple</SelectItem>
-                  <SelectItem value="banana">Banana</SelectItem>
-                  <SelectItem value="blueberry">Blueberry</SelectItem>
-                  <SelectItem value="grapes">Grapes</SelectItem>
-                  <SelectItem value="pineapple">Pineapple</SelectItem>
+                  {subjectKeys.map((key) => {
+                    return (
+                      <SelectItem key={key} value={key}>
+                        {key}
+                      </SelectItem>
+                    );
+                  })}
                 </SelectGroup>
               </SelectContent>
             </Select>
 
-            <Select>
+            <Select
+              disabled={!subjectOfCourseToAdd}
+              value={courseIdOfCourseToAdd}
+              onValueChange={handleCourseIdChange}
+            >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select Course ID" />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectLabel>Fruits</SelectLabel>
-                  <SelectItem value="apple">Apple</SelectItem>
-                  <SelectItem value="banana">Banana</SelectItem>
-                  <SelectItem value="blueberry">Blueberry</SelectItem>
-                  <SelectItem value="grapes">Grapes</SelectItem>
-                  <SelectItem value="pineapple">Pineapple</SelectItem>
+                  {allCourses
+                    .filter((course) => course.subject == subjectOfCourseToAdd)
+                    .map((course) => {
+                      return (
+                        <SelectItem
+                          key={course.courseId}
+                          value={course.courseId}
+                        >
+                          {course.courseId}
+                        </SelectItem>
+                      );
+                    })}
                 </SelectGroup>
               </SelectContent>
             </Select>
@@ -122,8 +162,10 @@ export default function Home() {
           </div>
           <DrawerFooter>
             <Button>Add Course</Button>
-            <DrawerClose>
-              <Button variant="outline" className="w-full mb-3 mt-1">Cancel</Button>
+            <DrawerClose asChild>
+              <Button variant="outline" className="w-full mb-3 mt-1">
+                Cancel
+              </Button>
             </DrawerClose>
           </DrawerFooter>
         </DrawerContent>

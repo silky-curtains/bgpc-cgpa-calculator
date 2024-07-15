@@ -24,6 +24,9 @@ import {
 import {
   allCourses,
   CourseId,
+  getCourseBySubjectAndId,
+  Grades,
+  gradeValues,
   subjectKeys,
   Subjects,
   SUBJECTS,
@@ -66,6 +69,11 @@ export default function Home() {
     CourseId | undefined
   >(undefined);
 
+  const [gradeOfCourseToAdd, setGradeOfCourseToAdd] = useState<
+    Grades | undefined
+  >(undefined);
+
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const handleSubjectChange = (subject: Subjects) => {
     setSubjectOfCourseToAdd(subject);
     setCourseIdOfCourseToAdd(undefined);
@@ -75,11 +83,37 @@ export default function Home() {
     setCourseIdOfCourseToAdd(courseId);
   };
 
-  console.log(subjectOfCourseToAdd, courseIdOfCourseToAdd);
+  const handleGradeChange = (grade: Grades) => {
+    setGradeOfCourseToAdd(grade);
+  };
+
+  const resetCourseToAdd = () => {
+    setSubjectOfCourseToAdd(undefined);
+    setCourseIdOfCourseToAdd(undefined);
+    setGradeOfCourseToAdd(undefined);
+  }
+
+  const handleDrawerOpenChange = (newState: boolean) => {
+    setDrawerOpen(newState);
+    if(newState == false) {
+      resetCourseToAdd();
+    }
+  };
+
+  const handleAddCourse = () => {
+
+  }
+
+  const selectedCourse = getCourseBySubjectAndId(
+    subjectOfCourseToAdd,
+    courseIdOfCourseToAdd
+  );
+
+  console.log(drawerOpen, subjectOfCourseToAdd, courseIdOfCourseToAdd, gradeOfCourseToAdd);
   return (
     <>
       <CgpaInfo />
-      <Drawer>
+      <Drawer open={drawerOpen} onOpenChange={handleDrawerOpenChange}>
         <DrawerTrigger asChild>
           <div className="hover:cursor-pointer text-accent-foreground shadow-md my-[0.4rem] bg-accent text-sm flex items-center justify-between border-[#27272a] rounded-lg px-4 py-2 w-full max-w-md mx-auto">
             <span>Add a new course</span>
@@ -140,28 +174,42 @@ export default function Home() {
           <div className="mx-5">
             <h1 className="text-lg">Selected Course</h1>
             <div className="mt-2 h-12 px-4 py-2 border border-input bg-background w-full flex items-center justify-between whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors">
-              <div>Mathematics II</div>
-              <div>Credits: 3</div>
+              <div className={selectedCourse?.name ? "" : "italic"}>
+                {selectedCourse?.name || "No Course Selected"}
+              </div>
+              <div className={selectedCourse?.credits ? "" : "italic"}>
+                Credits: {selectedCourse?.credits || "NA"}
+              </div>
             </div>
             <h1 className="mt-4 mb-2 text-lg">Grade</h1>
-            <Select>
+            <Select
+              value={gradeOfCourseToAdd}
+              onValueChange={handleGradeChange}
+            >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select Your Grade" />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectLabel>Fruits</SelectLabel>
-                  <SelectItem value="apple">Apple</SelectItem>
-                  <SelectItem value="banana">Banana</SelectItem>
-                  <SelectItem value="blueberry">Blueberry</SelectItem>
-                  <SelectItem value="grapes">Grapes</SelectItem>
-                  <SelectItem value="pineapple">Pineapple</SelectItem>
+                  {gradeValues.map((grade) => {
+                    return (
+                      <SelectItem key={grade} value={grade}>
+                        {grade}
+                      </SelectItem>
+                    );
+                  })}
                 </SelectGroup>
               </SelectContent>
             </Select>
           </div>
           <DrawerFooter>
-            <Button>Add Course</Button>
+            <Button onClick={
+              handleAddCourse
+            }
+            disabled={
+              !subjectOfCourseToAdd || !courseIdOfCourseToAdd || !gradeOfCourseToAdd
+            }
+            >Add Course</Button>
             <DrawerClose asChild>
               <Button variant="outline" className="w-full mb-3 mt-1">
                 Cancel

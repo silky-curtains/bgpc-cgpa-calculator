@@ -188,7 +188,7 @@ export default function Home() {
           </DrawerHeader>
 
           <div className="mx-5">
-            <h1 className="text-lg my-3">Subject and Course ID</h1>
+            {/* <h1 className="text-lg my-3">Subject and Course ID</h1> */}
             <div className="flex justify-between items-center mb-3">
               <div>
                 <Select
@@ -241,7 +241,7 @@ export default function Home() {
                 </Select>
               </div>
             </div>
-            <h1 className="mb-3 text-lg">Grade</h1>
+            {/* <h1 className="mb-3 text-lg">Grade</h1> */}
             <Select
               value={gradeOfCourseToAdd}
               onValueChange={handleGradeChange}

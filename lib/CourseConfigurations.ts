@@ -25,13 +25,14 @@ function log(sub: Subjects) {
   console.log(sub);
 }
 
-type Course = {
+export type Course = {
   subject: Subjects;
   courseId: CourseId;
   credits: number;
   name: string,
 };
 
+export type CourseWithGrades = Course & { grade: Grades };
 // type Grades = "A" | "A-" | "B" | "B-" | "C" | "C-" | "D" | "E";
 
 export const GRADES = {

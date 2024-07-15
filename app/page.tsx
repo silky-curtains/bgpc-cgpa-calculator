@@ -23,7 +23,9 @@ import {
 } from "@/components/ui/select";
 import {
   allCourses,
+  Course,
   CourseId,
+  CourseWithGrades,
   getCourseBySubjectAndId,
   Grades,
   gradeValues,
@@ -74,6 +76,9 @@ export default function Home() {
   >(undefined);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const [currentCourses, setCurrentCourses] = useState<CourseWithGrades[]>([]);
+
   const handleSubjectChange = (subject: Subjects) => {
     setSubjectOfCourseToAdd(subject);
     setCourseIdOfCourseToAdd(undefined);
@@ -100,12 +105,21 @@ export default function Home() {
     }
   };
 
-  const handleAddCourse = () => {};
-
   const selectedCourse = getCourseBySubjectAndId(
     subjectOfCourseToAdd,
     courseIdOfCourseToAdd
   );
+
+  const handleAddCourse = () => {
+    const newCourse: CourseWithGrades = {
+      // selected course will not be undefined here
+      ...selectedCourse!,
+      grade: gradeOfCourseToAdd!,
+    };
+    
+    setCurrentCourses([...currentCourses, newCourse]);
+    handleDrawerOpenChange(false);
+  };
 
   console.log(
     drawerOpen,
@@ -230,10 +244,10 @@ export default function Home() {
             </DrawerClose>
           </DrawerFooter>
         </DrawerContent>
-
-        <CourseInfoCard></CourseInfoCard>
-        <CourseInfoCard></CourseInfoCard>
       </Drawer>
+      {currentCourses.map((course) => {
+        return <CourseInfoCard key={course.name} course={course} />;
+      })}
     </>
   );
 }

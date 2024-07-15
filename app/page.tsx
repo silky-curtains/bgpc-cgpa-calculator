@@ -2,62 +2,65 @@
 import CourseInfoCard from "@/components/CourseInfoCard";
 import { Button } from "@/components/ui/button";
 import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
+  Drawer, DrawerContent, DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger,
+  DrawerTrigger
 } from "@/components/ui/drawer";
 
 import {
   Select,
   SelectContent,
   SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
+  SelectItem, SelectTrigger,
+  SelectValue
 } from "@/components/ui/select";
+
 import {
-  allCourses,
-  Course,
-  CourseId,
+  allCourses, CourseId,
   CourseWithGrades,
   getCourseBySubjectAndId,
+  getGradePoints,
   Grades,
   gradeValues,
   subjectKeys,
-  Subjects,
-  SUBJECTS,
+  Subjects
 } from "@/lib/CourseConfigurations";
 import { useState } from "react";
 
-const CgpaInfo = () => {
+const CgpaInfo = ({
+  currentCredits,
+  sgpa,
+}: {
+  // cgpa: number;
+  sgpa: string;
+  // totalCredits: number;
+  currentCredits: number;
+}) => {
   return (
     <>
       <div className="shadow-md px-4 my-[0.4rem] text-sm flex items-center justify-between border-[#27272a] w-full max-w-md mx-auto">
         <div className="text-left">
-          <div className="text-xs">SGPA</div>
-          <div className="text-2xl">9.5</div>
+          <div className={`text-xs `}>SGPA</div>
+          <div className={`text-2xl ${sgpa === "NaN" ? "italic" : ""}`}>
+            {sgpa === "NaN" ? "N.A." : sgpa}
+          </div>
         </div>
         <div className="text-right">
-          <div className="text-xs">CGPA</div>
-          <div className="text-2xl">8.5</div>
+          <div className="text-xs">Current Credits</div>
+          <div className="text-2xl">{currentCredits}</div>
         </div>
       </div>
-      <div className="shadow-md px-4 my-[0.4rem] text-sm flex items-center justify-between border-[#27272a] w-full max-w-md mx-auto">
+      {/* <div className="shadow-md px-4 my-[0.4rem] text-sm flex items-center justify-between border-[#27272a] w-full max-w-md mx-auto">
         <div className="text-left">
           <div className="text-xs">Current Credits</div>
-          <div className="text-2xl">19</div>
+          <div className="text-2xl">{currentCredits}</div>
         </div>
         <div className="text-right">
           <div className="text-xs">Total Credits</div>
-          <div className="text-2xl">37</div>
+          <div className="text-2xl italic">N.A.</div>
         </div>
-      </div>
+      </div> */}
     </>
   );
 };
@@ -79,6 +82,12 @@ export default function Home() {
 
   const [currentCourses, setCurrentCourses] = useState<CourseWithGrades[]>([]);
 
+  const [modifyMode, setModifyMode] = useState(false);
+
+  const [indexToModify, setIndexToModify] = useState<number | undefined>(
+    undefined
+  );
+
   const handleSubjectChange = (subject: Subjects) => {
     setSubjectOfCourseToAdd(subject);
     setCourseIdOfCourseToAdd(undefined);
@@ -98,10 +107,12 @@ export default function Home() {
     setGradeOfCourseToAdd(undefined);
   };
 
-  const handleDrawerOpenChange = (newState: boolean) => {
-    setDrawerOpen(newState);
-    if (newState == false) {
+  const handleDrawerOpenChange = (openState: boolean) => {
+    setDrawerOpen(openState);
+    if (openState == false) {
       resetCourseToAdd();
+      setModifyMode(false);
+      setIndexToModify(undefined);
     }
   };
 
@@ -110,26 +121,41 @@ export default function Home() {
     courseIdOfCourseToAdd
   );
 
-  const handleAddCourse = () => {
+  // not sure what to call this function
+  const handleSubmit = () => {
     const newCourse: CourseWithGrades = {
       // selected course will not be undefined here
       ...selectedCourse!,
       grade: gradeOfCourseToAdd!,
     };
-    
-    setCurrentCourses([...currentCourses, newCourse]);
+
+    if (modifyMode) {
+      setCurrentCourses((previous) => {
+        const newCourses = [...previous];
+        newCourses[indexToModify!] = newCourse;
+        return newCourses;
+      });
+      setModifyMode(false);
+      setIndexToModify(undefined);
+    } else {
+      setCurrentCourses([...currentCourses, newCourse]);
+    }
     handleDrawerOpenChange(false);
   };
 
-  console.log(
-    drawerOpen,
-    subjectOfCourseToAdd,
-    courseIdOfCourseToAdd,
-    gradeOfCourseToAdd
+  const currentCredits = currentCourses.reduce(
+    (acc, course) => acc + course.credits,
+    0
   );
+  const sgpa = (
+    currentCourses.reduce((acc, course) => {
+      return acc + getGradePoints(course.grade) * course.credits;
+    }, 0) / currentCredits
+  ).toFixed(2);
+
   return (
     <>
-      <CgpaInfo />
+      <CgpaInfo currentCredits={currentCredits} sgpa={sgpa} />
       <Drawer open={drawerOpen} onOpenChange={handleDrawerOpenChange}>
         <DrawerTrigger asChild>
           <div className="hover:cursor-pointer text-accent-foreground shadow-md my-[0.4rem] bg-accent text-sm flex items-center justify-between border-[#27272a] rounded-lg px-4 py-2 w-full max-w-md mx-auto">
@@ -137,6 +163,24 @@ export default function Home() {
             <button className="text-lg font-bold mr-2">+</button>
           </div>
         </DrawerTrigger>
+        {currentCourses.map((course, idx) => {
+          return (
+            <DrawerTrigger
+              onClick={() => {
+                setModifyMode(true);
+                setSubjectOfCourseToAdd(course.subject);
+                setCourseIdOfCourseToAdd(course.courseId);
+                setGradeOfCourseToAdd(course.grade);
+                setIndexToModify(idx);
+                setDrawerOpen(true);
+              }}
+              key={course.name}
+              className="p-0 w-full my-[0.44rem]"
+            >
+              <CourseInfoCard course={course} />
+            </DrawerTrigger>
+          );
+        })}
         <DrawerContent className="outline-none focus:outline-none">
           <DrawerHeader className="text-left">
             <DrawerTitle>Add Course</DrawerTitle>
@@ -228,26 +272,37 @@ export default function Home() {
           </div>
           <DrawerFooter>
             <Button
-              onClick={handleAddCourse}
+              className={`${modifyMode ? "" : "mb-3"}`}
+              onClick={handleSubmit}
               disabled={
                 !subjectOfCourseToAdd ||
                 !courseIdOfCourseToAdd ||
                 !gradeOfCourseToAdd
               }
             >
-              Add Course
+              {modifyMode ? "Update Course" : "Add Course"}
             </Button>
-            <DrawerClose asChild>
+            {modifyMode && (
+              <Button
+                className={`mt-1 ${modifyMode ? "mb-3" : ""}`}
+                onClick={handleSubmit}
+                disabled={
+                  !subjectOfCourseToAdd ||
+                  !courseIdOfCourseToAdd ||
+                  !gradeOfCourseToAdd
+                }
+              >
+                Delete Course
+              </Button>
+            )}
+            {/* <DrawerClose asChild>
               <Button variant="outline" className="w-full mb-3 mt-1">
                 Cancel
               </Button>
-            </DrawerClose>
+            </DrawerClose> */}
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
-      {currentCourses.map((course) => {
-        return <CourseInfoCard key={course.name} course={course} />;
-      })}
     </>
   );
 }

@@ -91,25 +91,28 @@ export default function Home() {
     setSubjectOfCourseToAdd(undefined);
     setCourseIdOfCourseToAdd(undefined);
     setGradeOfCourseToAdd(undefined);
-  }
+  };
 
   const handleDrawerOpenChange = (newState: boolean) => {
     setDrawerOpen(newState);
-    if(newState == false) {
+    if (newState == false) {
       resetCourseToAdd();
     }
   };
 
-  const handleAddCourse = () => {
-
-  }
+  const handleAddCourse = () => {};
 
   const selectedCourse = getCourseBySubjectAndId(
     subjectOfCourseToAdd,
     courseIdOfCourseToAdd
   );
 
-  console.log(drawerOpen, subjectOfCourseToAdd, courseIdOfCourseToAdd, gradeOfCourseToAdd);
+  console.log(
+    drawerOpen,
+    subjectOfCourseToAdd,
+    courseIdOfCourseToAdd,
+    gradeOfCourseToAdd
+  );
   return (
     <>
       <CgpaInfo />
@@ -122,66 +125,64 @@ export default function Home() {
         </DrawerTrigger>
         <DrawerContent className="outline-none focus:outline-none">
           <DrawerHeader className="text-left">
-            <DrawerTitle>Select Course</DrawerTitle>
+            <DrawerTitle>Add Course</DrawerTitle>
           </DrawerHeader>
-          <div className="flex justify-between items-center p-4">
-            <Select
-              value={subjectOfCourseToAdd}
-              onValueChange={handleSubjectChange}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select Subject" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {subjectKeys.map((key) => {
-                    return (
-                      <SelectItem key={key} value={key}>
-                        {key}
-                      </SelectItem>
-                    );
-                  })}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
 
-            <Select
-              disabled={!subjectOfCourseToAdd}
-              value={courseIdOfCourseToAdd}
-              onValueChange={handleCourseIdChange}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select Course ID" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {allCourses
-                    .filter((course) => course.subject == subjectOfCourseToAdd)
-                    .map((course) => {
-                      return (
-                        <SelectItem
-                          key={course.courseId}
-                          value={course.courseId}
-                        >
-                          {course.courseId}
-                        </SelectItem>
-                      );
-                    })}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </div>
           <div className="mx-5">
-            <h1 className="text-lg">Selected Course</h1>
-            <div className="mt-2 h-12 px-4 py-2 border border-input bg-background w-full flex items-center justify-between whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors">
-              <div className={selectedCourse?.name ? "" : "italic"}>
-                {selectedCourse?.name || "No Course Selected"}
+            <h1 className="text-lg my-3">Subject and Course ID</h1>
+            <div className="flex justify-between items-center mb-3">
+              <div>
+                <Select
+                  value={subjectOfCourseToAdd}
+                  onValueChange={handleSubjectChange}
+                >
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Select Subject" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {subjectKeys.map((key) => {
+                        return (
+                          <SelectItem key={key} value={key}>
+                            {key}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </div>
-              <div className={selectedCourse?.credits ? "" : "italic"}>
-                Credits: {selectedCourse?.credits || "NA"}
+              <div>
+                <Select
+                  disabled={!subjectOfCourseToAdd}
+                  value={courseIdOfCourseToAdd}
+                  onValueChange={handleCourseIdChange}
+                >
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Select Course ID" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {allCourses
+                        .filter(
+                          (course) => course.subject == subjectOfCourseToAdd
+                        )
+                        .map((course) => {
+                          return (
+                            <SelectItem
+                              key={course.courseId}
+                              value={course.courseId}
+                            >
+                              {course.courseId}
+                            </SelectItem>
+                          );
+                        })}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
-            <h1 className="mt-4 mb-2 text-lg">Grade</h1>
+            <h1 className="mb-3 text-lg">Grade</h1>
             <Select
               value={gradeOfCourseToAdd}
               onValueChange={handleGradeChange}
@@ -201,15 +202,27 @@ export default function Home() {
                 </SelectGroup>
               </SelectContent>
             </Select>
+            <h1 className="text-lg my-3">Selected Course</h1>
+            <div className="h-12 px-4 py-2 border border-input bg-background w-full flex items-center justify-between whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors">
+              <div className={selectedCourse?.name ? "" : "italic"}>
+                {selectedCourse?.name || "No Course Selected"}
+              </div>
+              <div className={selectedCourse?.credits ? "" : "italic"}>
+                Credits: {selectedCourse?.credits || "NA"}
+              </div>
+            </div>
           </div>
           <DrawerFooter>
-            <Button onClick={
-              handleAddCourse
-            }
-            disabled={
-              !subjectOfCourseToAdd || !courseIdOfCourseToAdd || !gradeOfCourseToAdd
-            }
-            >Add Course</Button>
+            <Button
+              onClick={handleAddCourse}
+              disabled={
+                !subjectOfCourseToAdd ||
+                !courseIdOfCourseToAdd ||
+                !gradeOfCourseToAdd
+              }
+            >
+              Add Course
+            </Button>
             <DrawerClose asChild>
               <Button variant="outline" className="w-full mb-3 mt-1">
                 Cancel

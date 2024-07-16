@@ -7,8 +7,8 @@ import React from "react";
 import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
-  // title: "BPGC Everyone",
-  description: "A website to view BITS-GOA student information",
+  title: "CGPA Calculator",
+  description: "A website to calculate CGPA for BITS Students",
 };
 
 export default function RootLayout({
@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <title>BPGC Everyone</title>
+        <title>CGPA Calculator</title>
       </head>
       <body
         className={cn(

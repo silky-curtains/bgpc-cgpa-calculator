@@ -2,31 +2,35 @@
 import CourseInfoCard from "@/components/CourseInfoCard";
 import { Button } from "@/components/ui/button";
 import {
-  Drawer, DrawerContent, DrawerFooter,
+  Drawer,
+  DrawerContent,
+  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger
+  DrawerTrigger,
 } from "@/components/ui/drawer";
 
 import {
   Select,
   SelectContent,
   SelectGroup,
-  SelectItem, SelectTrigger,
-  SelectValue
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 
 import {
-  allCourses, CourseId,
+  allCourses,
+  CourseId,
   CourseWithGrades,
   getCourseBySubjectAndId,
   getGradePoints,
   Grades,
   gradeValues,
   subjectKeys,
-  Subjects
+  Subjects,
 } from "@/lib/CourseConfigurations";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const CgpaInfo = ({
   currentCredits,
@@ -80,7 +84,12 @@ export default function Home() {
 
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const [currentCourses, setCurrentCourses] = useState<CourseWithGrades[]>([]);
+  const [currentCourses, setCurrentCourses] = useState<CourseWithGrades[]>(
+    () => {
+      const currentCoursesJson = localStorage.getItem("currentCourses");
+      return currentCoursesJson ? JSON.parse(currentCoursesJson) : [];
+    }
+  );
 
   const [modifyMode, setModifyMode] = useState(false);
 
@@ -142,6 +151,22 @@ export default function Home() {
     }
     handleDrawerOpenChange(false);
   };
+
+  const handleDelete = () => {
+    setCurrentCourses((previous) => {
+      const newCourses = [...previous];
+      newCourses.splice(indexToModify!, 1);
+      return newCourses;
+    });
+    setModifyMode(false);
+    setIndexToModify(undefined);
+    handleDrawerOpenChange(false);
+  };
+
+  useEffect(() => {
+    const currentCoursesJson = JSON.stringify(currentCourses);
+    localStorage.setItem("currentCourses", currentCoursesJson);
+  }, [currentCourses]);
 
   const currentCredits = currentCourses.reduce(
     (acc, course) => acc + course.credits,
@@ -286,7 +311,7 @@ export default function Home() {
             {modifyMode && (
               <Button
                 className={`mt-1 ${modifyMode ? "mb-3" : ""}`}
-                onClick={handleSubmit}
+                onClick={handleDelete}
                 disabled={
                   !subjectOfCourseToAdd ||
                   !courseIdOfCourseToAdd ||
